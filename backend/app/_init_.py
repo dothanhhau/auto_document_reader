@@ -26,7 +26,7 @@ from app.controllers.auth_controller import auth
 from app.controllers.googleapi_controller import googleapi
 from app.controllers.data_controller import document
 
-app.route('/')
+@app.route('/')
 def home():
   return 'Đây là server dành cho môn XDHTT của cô Liên (nhóm LOR bao gồm Lâm, Quý, Hậu)'
 
