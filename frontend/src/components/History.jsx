@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
+import TTS from './TTS';
 
-const History = () => {
+const History = ( {setActiveTab, setParams} ) => {
   const [responseData, setResponseData] = useState(null);
   const API_URL = process.env.REACT_APP_API_URL;
   const audioRef = useRef({});
-  const [audioCur, setAudioCur] = useState(null);
 
+  // setParams({})
 
   const fetchData = async () => {
     try {
@@ -86,24 +87,13 @@ const History = () => {
   const handlePause = (audio) => {
     if (audio) {
       saveAudioPositionAndPause(audio, audio.id, audio.currentTime);
-      fetchData()
     }
-    // console.log('pause', audioRef)
-    
   };
 
   const handleAudioEnded = (audio) => {
     saveAudioPositionAndPause(audio, audio.id, 0);
-    fetchData()
   };
 
-  const handlePlayFromPosition = (audioElement, startTime) => {
-    // setAudioCur(audioElement)
-    if (audioElement) {
-      audioElement.currentTime = startTime; // Thiết lập thời gian phát
-      audioElement.play(); // Bắt đầu phát âm thanh
-    }
-  };
   const base64ToBlob = (base64, mimeType) => {
     const byteCharacters = atob(base64); // Giải mã Base64 thành chuỗi nhị phân
     const byteArrays = [];
@@ -120,6 +110,16 @@ const History = () => {
 
     // Tạo Blob từ mảng byte
     return new Blob(byteArrays, { type: mimeType });
+  };
+
+  // Hàm xử lý khi tải metadata và khi thời gian thay đổi
+  const handleLoadedMetadata = (audio, position) => {
+    audio.currentTime = position
+  };
+
+  const moveTTS  = (item) => {
+    setParams(item)
+    setActiveTab('textToSpeech')
   };
 
   return (
@@ -151,7 +151,12 @@ const History = () => {
             return (
               <div key={index} className="flex">
               <div className="px-3 py-2 w-12"></div>
-              <div className="px-3 py-2 w-1/5 truncate">{item.text}</div>
+              {/* onClick={() => moveTTS(item)} */}
+              <div 
+                title={item.text} 
+                className="px-3 py-2 w-1/5 truncate hover:bg-gray-200 hover:text-blue-600 cursor-pointer hover:border-2 hover:border-blue-600 hover:scale-105 transition-transform" 
+                onClick={() => moveTTS(item)}
+              >{item.text}</div>
               <div className="px-3 py-2 w-1/6">{item.voice}</div>
               <div className="px-3 py-2 w-1/5">{item.created_at}</div>
               <div className="px-3 py-2 w-1/3 truncate">
@@ -161,9 +166,9 @@ const History = () => {
                   id={item._id} 
                   controls 
                   ref={audioRef[item._id]}
-                  onPlay={() => handlePlayFromPosition(audioRef[item._id].current, item.position || 0 )}
                   onEnded={() => handleAudioEnded(audioRef[item._id].current)}
                   onPause={() => handlePause(audioRef[item._id].current)}
+                  onLoadedMetadata={() => handleLoadedMetadata(audioRef[item._id].current, item.position || 0)}
                 />
               </div>
               <div className="px-3 py-2 w-1/5">

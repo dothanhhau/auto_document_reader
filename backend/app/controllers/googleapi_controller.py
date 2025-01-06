@@ -53,16 +53,16 @@ def texttospeech():
       "key": str(os.getenv('GOOGLE_API_KEY'))
     }
 
+    token = str(request.headers.get('Authorization')).split(' ')[1]
+    payload = decode_token(str(token))
+
     try:
       response = requests.post(url, headers=headers, params=params, data=json.dumps(payload))
 
       if response.status_code == 200:
         audio_content = response.json()['audioContent']
 
-        token = str(request.headers.get('Authorization')).split(' ')[1]
-        payload = decode_token(str(token))
-
-        result = Data.add_data(payload['sub'], data['text'], str(audio_content), data['gender'])
+        result = Data.add_data(payload['sub'], data['text'], str(audio_content), data['gender'], data['lang'])
         return jsonify(status=200, data=str(audio_content), id=str(result.inserted_id))
       else:
         return jsonify(status=response.status_code, data=response.text)
