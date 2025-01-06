@@ -8,6 +8,7 @@ import { useUser } from "../context/UserContext"; // Context lấy thông tin us
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("textToSpeech");
   const { user, loading } = useUser(); // Lấy thông tin user từ context
+  const [params, setParams] = useState({});
 
   const user_id = localStorage.getItem('user');
 
@@ -18,6 +19,14 @@ const Dashboard = () => {
       </div>
     );
   }
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+
+    if (tab !== 'textToSpeech') {
+      setParams({});
+    }
+  };
 
   return (
     <div className="flex min-h-screen w-full h-full">
@@ -39,7 +48,7 @@ const Dashboard = () => {
           <nav className="space-y-2">
             {" "}
             <button
-              onClick={() => setActiveTab("textToSpeech")}
+              onClick={() => handleTabChange("textToSpeech")}
               className={`flex items-center w-full text-left px-4 py-2 rounded-lg font-medium ${
                 activeTab === "textToSpeech"
                   ? "bg-blue-50 text-blue-600"
@@ -67,7 +76,7 @@ const Dashboard = () => {
               Chuyển văn bản thành giọng nói
             </button>
             <button
-              onClick={() => setActiveTab("fileToSpeech")}
+              onClick={() => handleTabChange("fileToSpeech")}
               className={`flex items-center w-full text-left px-4 py-2 rounded-lg font-medium ${
                 activeTab === "fileToSpeech"
                   ? "bg-blue-50 text-blue-600"
@@ -93,7 +102,7 @@ const Dashboard = () => {
               Chuyển tệp thành giọng nói
             </button>
             <button
-              onClick={() => setActiveTab("history")}
+              onClick={() => handleTabChange("history")}
               className={`flex items-center w-full text-left px-4 py-2 rounded-lg font-medium ${
                 activeTab === "history"
                   ? "bg-blue-50 text-blue-600"
@@ -144,7 +153,7 @@ const Dashboard = () => {
         {activeTab === "textToSpeech" && (
           <div>
             {/* <h1 className="text-xl font-bold text-gray-800 mb-4">Chuyển văn bản thành giọng nói</h1> */}
-            <TTS />
+            <TTS params={params} />
           </div>
         )}
         {activeTab === "fileToSpeech" && (
@@ -152,13 +161,13 @@ const Dashboard = () => {
             <h1 class="text-2xl font-bold text-gray-800 mb-4">
               Chuyển tệp thành giọng nói
             </h1>
-            <UploadDocument />
+            <UploadDocument setActiveTab={setActiveTab} />
           </div>
         )}
         {activeTab === "history" && (
           <div>
             {/* <h1 className="text-xl font-bold text-gray-800 mb-4">Lịch sử</h1> */}
-            <History />
+            <History setActiveTab={setActiveTab} setParams={setParams} />
           </div>
         )}
       </main>

@@ -16,12 +16,13 @@ class Data:
       return mongo.db.data.find_one({'_id': ObjectId(id)}) # type: ignore
 
     @staticmethod
-    def add_data(user_id, text, audio, voice):
+    def add_data(user_id, text, audio, voice, lang):
       return mongo.db.data.insert_one({ # type: ignore
                                       "user_id": user_id, 
                                       "text": text, 
                                       "audio": audio,
                                       "voice": voice,
+                                      "lang": lang,
                                       "created_at": datetime.now()
                                     })
     

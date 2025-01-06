@@ -3,19 +3,19 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 // import { textToSpeech } from "../services/api";
 
-const TTS = () => {
-  const [text, setText] = useState("");
+const TTS = ( {params} ) => {
+  const [text, setText] = useState(params.text || "");
   const [speed, setSpeed] = useState(1);
   const [volume, setVolume] = useState(100);
-  const [language, setLanguage] = useState("vi-VN");
-  const [voice, setVoice] = useState("FEMALE");
-  const [audioBase64, setAudioBase64] = useState(""); // Lưu trữ Base64 từ API
+  const [language, setLanguage] = useState(params.lang || "vi-VN");
+  const [voice, setVoice] = useState(params.voice || "FEMALE");
+  const [audioBase64, setAudioBase64] = useState(params.audio || ""); // Lưu trữ Base64 từ API
+  const [id, setId] = useState(params._id || "audioPlayer");
   const [audioPlayer, setAudioPlayer] = useState(null); // Lưu trữ phần tử audio
   const [isLoading, setIsLoading] = useState(false);
-  const [id, setId] = useState("audioPlayer");
-
+  // console.log(params)
   const API_URL = process.env.REACT_APP_API_URL;
-
+  console.log(audioPlayer)
   const textInput = useRef(null);
   // Hàm lấy Base64 từ API và điều chỉnh tốc độ
   const getAndAdjustAudio = async () => {
@@ -99,6 +99,7 @@ const TTS = () => {
 
   // Hàm để phát lại âm thanh từ base64
   const playAudio = (base64) => {
+    // console.log(base64, audioPlayer)
     if (base64 && audioPlayer) {
       // Chuyển Base64 thành Blob với loại âm thanh 'audio/mp3'
       const blob = base64ToBlob(base64, "audio/mp3");
@@ -193,7 +194,7 @@ const TTS = () => {
           saveAudioPositionAndPause(audioPlayer, id); // Lưu và dừng audio khi component bị unmount
       };
     },
-    [audioBase64],
+    [audioBase64, audioPlayer],
     [speed, volume]
   ); // Mỗi khi audioBase64 thay đổi, sẽ gọi playAudio
 
