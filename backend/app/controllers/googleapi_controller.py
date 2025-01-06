@@ -62,8 +62,8 @@ def texttospeech():
         token = str(request.headers.get('Authorization')).split(' ')[1]
         payload = decode_token(str(token))
 
-        Data.add_data(payload['sub'], data['text'], str(audio_content), data['gender'])
-        return jsonify(status=200, data=str(audio_content))
+        result = Data.add_data(payload['sub'], data['text'], str(audio_content), data['gender'])
+        return jsonify(status=200, data=str(audio_content), id=str(result.inserted_id))
       else:
         return jsonify(status=response.status_code, data=response.text)
     except Exception as e:

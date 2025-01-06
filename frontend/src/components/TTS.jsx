@@ -12,6 +12,7 @@ const TTS = () => {
   const [audioBase64, setAudioBase64] = useState(""); // Lưu trữ Base64 từ API
   const [audioPlayer, setAudioPlayer] = useState(null); // Lưu trữ phần tử audio
   const [isLoading, setIsLoading] = useState(false);
+  const [id, setId] = useState("audioPlayer");
 
   const API_URL = process.env.REACT_APP_API_URL;
 
@@ -34,7 +35,6 @@ const TTS = () => {
     setIsLoading(true);
 
     try {
-      console.log("data", text, language, voice);
       const text_api = text; // Nội dung văn bản cần chuyển thành âm thanh
       const lang_api = language; // Ngôn ngữ
       const gender_api = voice; // Giới tính
@@ -64,8 +64,8 @@ const TTS = () => {
       }
 
       const data = await response.json();
+      setId(data.id);
       setAudioBase64(data.data); // Lưu Base64 nhận được từ API
-      playAudio();
     } catch (error) {
       console.error("Error fetching or processing audio:", error);
       toast.error("Lỗi khi tạo giọng nói, vui lòng thử lại sau!", {
@@ -134,6 +134,49 @@ const TTS = () => {
     setText("");
   };
 
+  const saveAudioPositionAndPause = async (audio, audioId) => {
+    if(audioId === 'audioPlayer') return;
+    if (audio) {
+      const params = new URLSearchParams();
+      params.append("position", audio.currentTime);
+
+      const token_api = localStorage.getItem('user');
+      console.log(audio.currentTime)
+      // Gửi yêu cầu POST để lấy Base64 từ API
+      const respnose = await fetch(
+        `${API_URL}/document/update/${audioId}`,
+        {
+          method: "PATCH",
+          headers: {
+            'Authorization': `Bearer ${token_api}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: params.toString(), // Dữ liệu được mã hóa x-www-form-urlencoded
+        }
+      );
+      if(respnose?.status === 200) {
+        console.log('Success')
+      }
+      else {
+        console.log('Failure')
+      }
+    }
+  };
+
+  const handleBeforeUnload = (event) => {
+    if(audioPlayer && audioPlayer?.src) {
+      audioPlayer.pause();
+      // Tùy chọn: Cảnh báo người dùng nếu họ chưa lưu
+      event.returnValue = 'Are you sure you want to leave?';
+    }
+  };
+
+  const handlePause = (audio) => {
+    if (audio.target) {
+      saveAudioPositionAndPause(audio.target, audio.target.id);
+    }
+  };
+
   useEffect(
     () => {
       if (audioBase64) {
@@ -143,6 +186,12 @@ const TTS = () => {
         audioPlayer.playbackRate = speed; // Cập nhật tốc độ
         audioPlayer.volume = volume / 100; // Cập nhật âm lượng
       }
+      window.addEventListener('beforeunload', handleBeforeUnload);
+      return () => {
+        window.removeEventListener('beforeunload', handleBeforeUnload);
+        if(id !== 'audioPlayer')
+          saveAudioPositionAndPause(audioPlayer, id); // Lưu và dừng audio khi component bị unmount
+      };
     },
     [audioBase64],
     [speed, volume]
@@ -172,8 +221,9 @@ const TTS = () => {
       <audio
         className="w-full"
         ref={(ref) => setAudioPlayer(ref)}
-        id="audioPlayer"
+        id={id}
         controls
+        onPause={handlePause}
       ></audio>
       {/* Thanh công cụ */}
       <div className="flex justify-end items-center space-x-2 mb-4">
