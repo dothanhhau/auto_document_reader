@@ -33,7 +33,7 @@ def texttospeech():
 
     name = f'{data['lang']}-{name}'
     
-    payload = {
+    payl = {
       "input": {"text": data['text']},
       "voice": {
         "languageCode": data['lang'],
@@ -57,7 +57,7 @@ def texttospeech():
     payload = decode_token(str(token))
 
     try:
-      response = requests.post(url, headers=headers, params=params, data=json.dumps(payload))
+      response = requests.post(url, headers=headers, params=params, data=json.dumps(payl))
 
       if response.status_code == 200:
         audio_content = response.json()['audioContent']
