@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 
 const History = () => {
   const [responseData, setResponseData] = useState(null);
   const API_URL = process.env.REACT_APP_API_URL;
+  const audioRef = useRef({});
+  const [audioCur, setAudioCur] = useState(null);
+
 
   const fetchData = async () => {
     try {
@@ -44,6 +47,63 @@ const History = () => {
     }
   }
 
+  const saveAudioPositionAndPause = async (audio, audioId, time) => {
+    if(audioId === 'audioPlayer') return;
+    if (audio) {
+      const params = new URLSearchParams();
+      params.append("position", time);
+
+      const token_api = localStorage.getItem('user');
+      // Gửi yêu cầu POST để lấy Base64 từ API
+      const respnose = await fetch(
+        `${API_URL}/document/update/${audioId}`,
+        {
+          method: "PATCH",
+          headers: {
+            'Authorization': `Bearer ${token_api}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: params.toString(), // Dữ liệu được mã hóa x-www-form-urlencoded
+        }
+      );
+      if(respnose?.status === 200) {
+        console.log('Success')
+      }
+      else {
+        console.log('Failure')
+      }
+    }
+  };
+
+  // const handleBeforeUnload = (event) => {
+  //   if(audioPlayer && audioPlayer?.src) {
+  //     audioPlayer.pause();
+  //     // Tùy chọn: Cảnh báo người dùng nếu họ chưa lưu
+  //     event.returnValue = 'Are you sure you want to leave?';
+  //   }
+  // };
+
+  const handlePause = (audio) => {
+    if (audio) {
+      saveAudioPositionAndPause(audio, audio.id, audio.currentTime);
+      fetchData()
+    }
+    // console.log('pause', audioRef)
+    
+  };
+
+  const handleAudioEnded = (audio) => {
+    saveAudioPositionAndPause(audio, audio.id, 0);
+    fetchData()
+  };
+
+  const handlePlayFromPosition = (audioElement, startTime) => {
+    // setAudioCur(audioElement)
+    if (audioElement) {
+      audioElement.currentTime = startTime; // Thiết lập thời gian phát
+      audioElement.play(); // Bắt đầu phát âm thanh
+    }
+  };
   const base64ToBlob = (base64, mimeType) => {
     const byteCharacters = atob(base64); // Giải mã Base64 thành chuỗi nhị phân
     const byteArrays = [];
@@ -87,6 +147,7 @@ const History = () => {
           responseData.map((item, index) => {
             const blob = base64ToBlob(item.audio, "audio/mp3");
             const audioURL = URL.createObjectURL(blob); // Tạo URL từ Blob
+            audioRef[item._id] = audioRef[item._id] || React.createRef();
             return (
               <div key={index} className="flex">
               <div className="px-3 py-2 w-12"></div>
@@ -94,7 +155,16 @@ const History = () => {
               <div className="px-3 py-2 w-1/6">{item.voice}</div>
               <div className="px-3 py-2 w-1/5">{item.created_at}</div>
               <div className="px-3 py-2 w-1/3 truncate">
-                <audio src={audioURL} className="w-full" id={item._id} controls></audio>
+                <audio 
+                  src={audioURL} 
+                  className="w-full" 
+                  id={item._id} 
+                  controls 
+                  ref={audioRef[item._id]}
+                  onPlay={() => handlePlayFromPosition(audioRef[item._id].current, item.position || 0 )}
+                  onEnded={() => handleAudioEnded(audioRef[item._id].current)}
+                  onPause={() => handlePause(audioRef[item._id].current)}
+                />
               </div>
               <div className="px-3 py-2 w-1/5">
                 <button className="bg-red-500 text-white py-2 px-8 rounded" onClick={() => handleDelete(item._id)}>Xóa</button>

@@ -10,8 +10,6 @@ const Dashboard = () => {
   const { user, loading } = useUser(); // Lấy thông tin user từ context
 
   const user_id = localStorage.getItem('user');
-  console.log('User',user_id)
-  
 
   if (loading) {
     return (

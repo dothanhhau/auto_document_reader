@@ -79,7 +79,6 @@ const UploadDocument = () => {
   };
   const getAndAdjustAudio = async () => {
     try {
-      console.log("data", text, language, voice);
       const text_api = text; // Nội dung văn bản cần chuyển thành âm thanh
       const lang_api = language; // Ngôn ngữ
       const gender_api = voice; // Giới tính
