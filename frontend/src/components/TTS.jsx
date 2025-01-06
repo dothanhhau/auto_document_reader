@@ -15,7 +15,7 @@ const TTS = ( {params} ) => {
   const [isLoading, setIsLoading] = useState(false);
   // console.log(params)
   const API_URL = process.env.REACT_APP_API_URL;
-  console.log(audioPlayer)
+  // console.log(params, audioPlayer, audioBase64)
   const textInput = useRef(null);
   // Hàm lấy Base64 từ API và điều chỉnh tốc độ
   const getAndAdjustAudio = async () => {
@@ -59,7 +59,7 @@ const TTS = ( {params} ) => {
         }
       );
 
-      if (!response.ok) {
+      if (response.status !== 200) {
         throw new Error("Failed to fetch audio from API");
       }
 
