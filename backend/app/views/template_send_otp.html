@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác thực email</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            padding: 20px;
+        }
+        .email-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            font-size: 24px;
+            color: #333;
+        }
+        .content {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #555;
+        }
+        .verification-code {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin: 20px 0;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #999;
+            text-align: center;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            text-align: center;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h2>Xác thực email của bạn</h2>
+        </div>
+        <div class="content">
+            <p>Xin chào,</p>
+            <p>Để hoàn tất quá trình đăng ký, vui lòng nhập mã xác thực dưới đây vào trang web của chúng tôi:</p>
+            <p class="verification-code">{{verification_code}}</p>
+            <p>Mã xác thực này sẽ hết hạn trong 10 phút, vì vậy hãy sử dụng nó càng sớm càng tốt!</p>
+            <p>Trân trọng,</p>
+            <p><strong>Đội ngũ hỗ trợ của chúng tôi</strong></p>
+        </div>
+        <div class="footer">
+            <p>Bạn nhận được email này vì bạn đã yêu cầu xác thực tài khoản trên hệ thống của chúng tôi. Nếu bạn không yêu cầu, vui lòng bỏ qua email này.</p>
+        </div>
+    </div>
+</body>
+</html>

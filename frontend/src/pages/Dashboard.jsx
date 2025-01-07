@@ -1,16 +1,100 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import TTS from "../components/TTS"; // Component Text-to-Speech chính
 import UploadDocument from "../components/UploadDocument"; // Component Upload file
 import History from "../components/History";
 import { useUser } from "../context/UserContext"; // Context lấy thông tin user
+import axios from "axios";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("textToSpeech");
-  const { user, loading } = useUser(); // Lấy thông tin user từ context
+  const API_URL = process.env.REACT_APP_API_URL;
+  const { usera, loading } = useUser(); // Lấy thông tin user từ context
   const [params, setParams] = useState({});
+  const [isPopupVisible, setPopupVisible] = useState(false);
+  const popupRef = useRef(null);
+  const [userData, setUserData] = useState(null);
+  // Giả sử thông tin người dùng
+  const user = {
+    name: "John Doe",
+    email: "johndoe@example.com",
+    credits: "18299 Tín dụng",
+  };
 
-  const user_id = localStorage.getItem('user');
+  // Hàm đăng xuất
+  const handleLogout = async () => {
+    // Xóa token trong localStorage và điều hướng đến trang login
+    try {
+      const response = await axios.post(`${API_URL}/auth/logout`, {email: userData.data}, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      localStorage.removeItem("user");
+      window.location.href = "/login"; // Điều hướng về trang login
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Đăng xuất thất bại',
+      };
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Kiểm tra xem click có xảy ra ngoài popup và avatar không
+      if (popupRef && popupRef.current && !popupRef.current.contains(event.target)) {
+        setPopupVisible(false); // Đóng popup nếu click ra ngoài
+      }
+    };
+
+    const handleBeforeUnload = (event) => {
+      // Cảnh báo người dùng trước khi rời khỏi trang
+      
+      const message = "Bạn có chắc chắn muốn rời khỏi trang?";
+      // Các trình duyệt hiện đại yêu cầu phải gán thông báo này vào event.returnValue
+      event.returnValue = message;
+      
+      // Các trình duyệt cũ có thể yêu cầu thêm dòng này
+      return message;
+    };
+    // window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Thêm sự kiện click toàn cục
+    document.addEventListener("click", handleClickOutside);
+
+    // Dọn dẹp sự kiện khi component unmount
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    // Lấy token từ localStorage
+    const token = localStorage.getItem('user');
+
+    if (!token) {
+      // Nếu không có token, chuyển hướng đến trang đăng nhập
+      window.location.href = "/login";
+      return;
+    }
+
+    // Gửi request đến backend để lấy dữ liệu dashboard
+    axios
+      .get(`${API_URL}/auth/dashboard`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        setUserData(response.data);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tải dữ liệu dashboard:", error);
+        window.location.href = "/login"; // Nếu token không hợp lệ, chuyển hướng về trang đăng nhập
+      });
+  }, [activeTab]);
 
   if (loading) {
     return (
@@ -35,7 +119,7 @@ const Dashboard = () => {
         <div className="p-7 flex-grow">
           {/* Logo */}
           <div className="mb-7">
-            <Link to="/" className="flex items-center no-underline">
+            <Link to="/dashboard" className="flex items-center no-underline">
               <img src="./logo.webp" alt="Logo" className="h-8 w-auto" />
               <span className="ml-2 text-xl font-semibold text-gray-800">
                 LOR
@@ -134,17 +218,39 @@ const Dashboard = () => {
         <hr className="mt-4 border-gray-600" />
 
           {/* User Profile */}
-          <div className="flex items-center mt-4 space-x-2">
-            {/* <img
-              src="https://placekitten.com/40/40"
-              alt="User Profile"
-              className="w-10 h-10 rounded-full"
-            /> */}
-            <div className="flex flex-col cursor-pointer">
-              <span className="font-medium">Account current</span>
-              {/* <span className="text-sm text-gray-500">18299 Tín dụng</span> */}
-            </div>
+          <div className="flex items-center mt-4 space-x-2 relative cursor-pointer"
+            onClick={() => setPopupVisible(!isPopupVisible)} // Toggle popup khi click vào avatar
+            ref={popupRef}
+            // onMouseEnter={() => setPopupVisible(true)} // Hiển thị popup khi hover
+            // onMouseLeave={() => setPopupVisible(false)} // Ẩn popup khi không hover
+          >
+          
+          <div className="flex flex-col cursor-pointer">
+            <span className="font-medium">{user.name}</span>
+            <span className="text-sm text-gray-500">{user.credits}</span>
           </div>
+
+          {/* Popup hiển thị thông tin người dùng */}
+          {isPopupVisible && (
+            <div 
+              className="absolute left-0 bottom-full mb-2 w-64 p-4 bg-white border border-gray-300 shadow-lg rounded-md"
+            >
+              <div>
+                <h3 className="font-semibold text-lg">{user.name}</h3>
+                <p className="text-sm text-gray-500">{userData.data}</p>
+                <p className="text-sm text-gray-500">{user.credits}</p>
+              </div>
+              <div className="mt-4">
+                <button
+                  onClick={handleLogout}
+                  className="w-full py-2 px-4 text-white bg-red-500 rounded-md hover:bg-red-600"
+                >
+                  Đăng xuất
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
         </div>
       </aside>
 

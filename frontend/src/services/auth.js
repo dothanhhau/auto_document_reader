@@ -34,3 +34,19 @@ export const login = async (credentials) => {
     };
   }
 };
+
+export const sendOtpToEmailRegister = async (credentials) => {
+  try {
+    const response = await axios.post(`${API_URL}/send_mail/register`, credentials, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return { success: true, data: response.data };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.message || 'Đăng nhập thất bại',
+    };
+  }
+};

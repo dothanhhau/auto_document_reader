@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import TTS from './TTS';
 
 const History = ( {setActiveTab, setParams} ) => {
   const [responseData, setResponseData] = useState(null);

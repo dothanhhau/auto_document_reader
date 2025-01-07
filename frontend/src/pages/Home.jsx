@@ -1,8 +1,31 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Footer from '../components/Footer';
+import axios from "axios";
 
 const Home = () => {
+  const API_URL = process.env.REACT_APP_API_URL;
+
+  const token = localStorage.getItem('user');
+
+  if (token) {
+    axios
+      .get(`${API_URL}/auth/dashboard`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        window.location.href = "/dashboard"; // Nếu token không hợp lệ, chuyển hướng về trang đăng nhập
+        // setUserData(response.data);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tải dữ liệu dashboard:", error);
+      });
+  }
+
+  // Gửi request đến backend để lấy dữ liệu dashboard
+
   return (
     <main className="w-full">
       <div className="w-full bg-gray-100"> 

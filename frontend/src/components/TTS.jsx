@@ -13,9 +13,9 @@ const TTS = ( {params} ) => {
   const [id, setId] = useState(params._id || "audioPlayer");
   const [audioPlayer, setAudioPlayer] = useState(null); // Lưu trữ phần tử audio
   const [isLoading, setIsLoading] = useState(false);
-  // console.log(params)
+  
   const API_URL = process.env.REACT_APP_API_URL;
-  // console.log(params, audioPlayer, audioBase64)
+  
   const textInput = useRef(null);
   // Hàm lấy Base64 từ API và điều chỉnh tốc độ
   const getAndAdjustAudio = async () => {
@@ -39,7 +39,7 @@ const TTS = ( {params} ) => {
       const lang_api = language; // Ngôn ngữ
       const gender_api = voice; // Giới tính
       const token_api = localStorage.getItem('user');
-      // Xây dựng chuỗi x-www-form-urlencoded
+      
       const params = new URLSearchParams();
       params.append("text", text_api);
       params.append("lang", lang_api);
@@ -55,7 +55,7 @@ const TTS = ( {params} ) => {
             'Authorization': `Bearer ${token_api}`,
             "Content-Type": "application/x-www-form-urlencoded",
           },
-          body: params.toString(), // Dữ liệu được mã hóa x-www-form-urlencoded
+          body: params.toString(),
         }
       );
 
@@ -107,6 +107,7 @@ const TTS = ( {params} ) => {
 
       // Thiết lập nguồn phát cho phần tử audio
       audioPlayer.src = audioURL;
+      audioPlayer.currentTime = params.position || 0;
       audioPlayer.playbackRate = speed; // Đặt tốc độ phát lại
       audioPlayer.volume = volume / 100;
       audioPlayer.play(); // Phát âm thanh
@@ -135,11 +136,15 @@ const TTS = ( {params} ) => {
     setText("");
   };
 
-  const saveAudioPositionAndPause = async (audio, audioId) => {
+  const handleAudioEnded = (audio) => {
+    saveAudioPositionAndPause(audio, audio.id, 0);
+  };
+
+  const saveAudioPositionAndPause = async (audio, audioId, pos) => {
     if(audioId === 'audioPlayer') return;
     if (audio) {
       const params = new URLSearchParams();
-      params.append("position", audio.currentTime);
+      params.append("position", pos);
 
       const token_api = localStorage.getItem('user');
       console.log(audio.currentTime)
@@ -174,7 +179,7 @@ const TTS = ( {params} ) => {
 
   const handlePause = (audio) => {
     if (audio.target) {
-      saveAudioPositionAndPause(audio.target, audio.target.id);
+      saveAudioPositionAndPause(audio.target, audio.target.id, audio.target.currentTime);
     }
   };
 
@@ -191,7 +196,7 @@ const TTS = ( {params} ) => {
       return () => {
         window.removeEventListener('beforeunload', handleBeforeUnload);
         if(id !== 'audioPlayer')
-          saveAudioPositionAndPause(audioPlayer, id); // Lưu và dừng audio khi component bị unmount
+          saveAudioPositionAndPause(audioPlayer, id, audioPlayer?.currentTime || 0); // Lưu và dừng audio khi component bị unmount
       };
     },
     [audioBase64, audioPlayer],
@@ -225,6 +230,7 @@ const TTS = ( {params} ) => {
         id={id}
         controls
         onPause={handlePause}
+        onEnded={() => handleAudioEnded(audioPlayer)}
       ></audio>
       {/* Thanh công cụ */}
       <div className="flex justify-end items-center space-x-2 mb-4">
