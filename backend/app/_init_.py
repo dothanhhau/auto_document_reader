@@ -25,6 +25,8 @@ jwt = JWTManager(app)
 from app.controllers.auth_controller import auth
 from app.controllers.googleapi_controller import googleapi
 from app.controllers.data_controller import document
+from app.controllers.user_controller import user
+from app.controllers.send_mail_controller import send_mail
 
 @app.route('/')
 def home():
@@ -33,3 +35,5 @@ def home():
 app.register_blueprint(auth, url_prefix='/api/auth')
 app.register_blueprint(googleapi, url_prefix='/api/googleapi')
 app.register_blueprint(document, url_prefix='/api/document')
+app.register_blueprint(user, url_prefix='/api/user')
+app.register_blueprint(send_mail, url_prefix='/api/send_mail')
