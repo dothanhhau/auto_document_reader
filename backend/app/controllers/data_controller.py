@@ -98,3 +98,12 @@ def updatePosition(id):
     return jsonify(status=200, data="Update success")
   except Exception as e:
     return jsonify(e)
+
+@document.route('/delete/all', methods=['POST'])
+def deleteAllDocument():
+  try:
+    Data.delete_all_data()
+    
+    return jsonify(status=200, data="Delete success")
+  except Exception as e:
+    return jsonify(e)
