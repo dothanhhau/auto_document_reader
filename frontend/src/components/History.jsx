@@ -156,7 +156,7 @@ const History = ( {setActiveTab, setParams} ) => {
                 className="px-3 py-2 w-1/5 truncate overflow-hidden whitespace-nowrap text-ellipsis hover:bg-gray-200 hover:text-blue-600 cursor-pointer hover:border-2 hover:border-blue-600 hover:scale-105 transition-transform" 
                 onClick={() => moveTTS(item)}
               >{item.text}</div>
-              <div className="px-3 py-2 w-1/6">{item.voice}</div>
+              <div className="px-3 py-2 w-1/6">{item.voice === 'MALE' ? "Nam" : 'Nữ'} ({item.lang === 'vi-VN' ? 'Tiếng Việt' : 'Tiếng Anh'})</div>
               <div className="px-3 py-2 w-1/5">{item.created_at}</div>
               <div className="px-3 py-2 w-1/3 truncate">
                 <audio 
