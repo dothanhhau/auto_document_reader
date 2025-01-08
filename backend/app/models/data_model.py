@@ -35,6 +35,10 @@ class Data:
       return mongo.db.data.delete_one({'_id': ObjectId(id)}) # type: ignore
 
     @staticmethod
+    def delete_all_data():
+      return mongo.db.data.delete_many({}) # type: ignore
+
+    @staticmethod
     def update_position_by_id(id, pos):
       return mongo.db.data.update_one({'_id': ObjectId(id)}, {"$set": {"position": pos}}, upsert=True) # type: ignore
     
