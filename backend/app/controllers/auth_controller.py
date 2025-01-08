@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from app.models.user_model import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, jwt_required, decode_token
+from datetime import datetime, timedelta
 
 # Tạo Blueprint
 auth = Blueprint('auth', __name__)
@@ -84,13 +85,16 @@ def register():
   else:
     check_otp = User.get_user_by_email(email)
     if otp != check_otp.get('otp'): # type: ignore
-      return jsonify({"success": False, "message": "OTP không chính xác hoặc quá hạn"}), 409
-      
+      return jsonify({"success": False, "message": "OTP không chính xác"}), 409
+    
+    if datetime.now() > (check_otp['created_at'] + timedelta(minutes=10)): # type: ignore
+      return jsonify({"success": False, "message": "OTP đã quá hạn"}), 409
+    
   hashed_password = generate_password_hash(password)
 
   try:
     User.update_pass(email, hashed_password)
-    return jsonify({"success": True, "message": "Đăng ký thành công!"}), 201
+    return jsonify({"success": True, "message": "Đăng ký thành công!"}), 200
   except Exception as e:
     return jsonify({'success': False, 'message': e})
 

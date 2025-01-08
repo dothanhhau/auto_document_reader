@@ -28,7 +28,7 @@ class User:
         return mongo.db.users.insert_one({ # type: ignore
                                         "email": email, 
                                         "password": hashpass, 
-                                        "created_at": datetime.utcnow(),
+                                        "created_at": datetime.now(),
                                         "status": "inactive"
                                     })
     
@@ -38,10 +38,18 @@ class User:
                                         "email": email, 
                                         "password": '',
                                         "otp": otp, 
-                                        "created_at": datetime.utcnow(),
+                                        "created_at": datetime.now(),
                                         "status": "inactive"
                                     })
     
     @staticmethod
     def update_pass(email, password):
         return mongo.db.users.update_one({"email": email}, {"$set": {"password": password}}) # type: ignore
+
+    @staticmethod
+    def update_otp(email, otp):
+        return mongo.db.users.update_one({"email": email}, {"$set": {"otp": otp, "created_at": datetime.now()}}) # type: ignore
+
+    @staticmethod
+    def delete_user_by_id(id):
+      return mongo.db.users.delete_one({'_id': ObjectId(id)}) # type: ignore

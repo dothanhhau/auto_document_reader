@@ -33,3 +33,13 @@ def getalluser():
   except Exception as e:
       return jsonify(e)
   
+@user.route('delete/<id>', methods=['POST'])
+def deleteuserbyid(id):
+  try:
+    user = User.get_user_by_id(id)
+    if not user:
+      return jsonify({"message": "User not found"}), 404
+    User.delete_user_by_id(id)
+    return jsonify(success=True, message='Delete user success')
+  except Exception as e:
+      return jsonify(e)

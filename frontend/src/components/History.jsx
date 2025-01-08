@@ -133,7 +133,7 @@ const History = ( {setActiveTab, setParams} ) => {
       <p className="text-sm text-gray-500 mb-4">0 của 0 hàng đã chọn.</p>
 
       {/* Table Headers */}
-      <div className="max-w-8xl border rounded-md overflow-auto">
+      <div className="max-w-7xl border rounded-md overflow-auto">
         <div className="bg-gray-100 flex">
           <div className="px-3 py-2 w-12"></div>
           <div className="px-3 py-2 w-1/5 font-medium">Văn bản</div>
@@ -153,7 +153,7 @@ const History = ( {setActiveTab, setParams} ) => {
               {/* onClick={() => moveTTS(item)} */}
               <div 
                 title={item.text} 
-                className="px-3 py-2 w-1/5 truncate hover:bg-gray-200 hover:text-blue-600 cursor-pointer hover:border-2 hover:border-blue-600 hover:scale-105 transition-transform" 
+                className="px-3 py-2 w-1/5 truncate overflow-hidden whitespace-nowrap text-ellipsis hover:bg-gray-200 hover:text-blue-600 cursor-pointer hover:border-2 hover:border-blue-600 hover:scale-105 transition-transform" 
                 onClick={() => moveTTS(item)}
               >{item.text}</div>
               <div className="px-3 py-2 w-1/6">{item.voice}</div>

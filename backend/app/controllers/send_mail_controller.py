@@ -29,7 +29,13 @@ def send_mail_register():
     if not receiver_email:
         return jsonify({"success": False, "message": "Email không được để trống"}), 400
     else:
-        User.add_email(receiver_email, verification_code)
+        user = User.get_user_by_email(receiver_email)
+        if not user:
+            User.add_email(receiver_email, verification_code)
+        elif user.get('password'):
+            return jsonify({"success": False, "message": "Email đã được đăng ký"}), 403
+        else:
+            User.update_otp(receiver_email, verification_code)
 
     msg = MIMEMultipart()
     msg['From'] = sender_email
