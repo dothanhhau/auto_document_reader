@@ -133,7 +133,7 @@ const History = ( {setActiveTab, setParams} ) => {
       <p className="text-sm text-gray-500 mb-4">0 của 0 hàng đã chọn.</p>
 
       {/* Table Headers */}
-      <div className="max-w-7xl border rounded-md overflow-auto">
+      <div className="max-w-6xl border rounded-md overflow-auto">
         <div className="bg-gray-100 flex">
           <div className="px-3 py-2 w-12"></div>
           <div className="px-3 py-2 w-1/5 font-medium">Văn bản</div>
