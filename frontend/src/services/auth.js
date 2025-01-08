@@ -50,3 +50,35 @@ export const sendOtpToEmailRegister = async (credentials) => {
     };
   }
 };
+
+export const sendOtpToEmailResetPass = async (credentials) => {
+  try {
+    const response = await axios.post(`${API_URL}/send_mail/fogot_password`, credentials, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return { success: true, data: response.data };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.message || 'Đăng nhập thất bại',
+    };
+  }
+};
+
+export const verifyResetPass = async (credentials) => {
+  try {
+    const response = await axios.post(`${API_URL}/send_mail/verify_fogot_password`, credentials, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return { success: true, data: response.data };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.message || 'Đăng nhập thất bại',
+    };
+  }
+};

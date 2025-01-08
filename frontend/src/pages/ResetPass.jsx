@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
+import { sendOtpToEmailResetPass, verifyResetPass } from "../services/auth";
+import { useNavigate } from "react-router-dom";
 
 const ResetPassword = () => {
   const [email, setEmail] = useState("");
@@ -8,6 +10,7 @@ const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmitEmail = async (e) => {
     e.preventDefault();
@@ -15,15 +18,18 @@ const ResetPassword = () => {
       toast.error("Vui lòng nhập Email");
       return;
     }
-    // Gửi yêu cầu OTP tới email và xử lý tại đây
-    // Giả sử OTP đã được gửi và xác thực thành công
-    setIsOtpVerified(true);
-    toast.success("OTP đã được gửi đến email của bạn!");
+    const response = await sendOtpToEmailResetPass({ email });
+    if (response.success) {
+        setIsOtpVerified(true);
+        toast.success("OTP đã được gửi đến email của bạn!");
+    } else {
+        toast.error(response.error);
+    }
   };
 
   const handleSubmitPassword = async (e) => {
     e.preventDefault();
-    if(!newPassword || !confirmPassword){
+    if(!otp ||!newPassword || !confirmPassword){
         toast.error("Vui lòng nhập mật khẩu và xác nhận mật khẩu");
         return;
     }
@@ -31,8 +37,13 @@ const ResetPassword = () => {
       toast.error("Mật khẩu xác nhận không khớp!");
       return;
     }
-    // Xử lý logic thay đổi mật khẩu ở đây
-    toast.success("Mật khẩu đã được thay đổi thành công!");
+    const response = await verifyResetPass({ email, password: newPassword, otp });
+    if (response.success) {
+      toast.success("Mật khẩu đã được thay đổi thành công!");
+      navigate('/login'); // Chuyển hướng tới trang đăng nhập
+    } else {
+      toast.error(response.error);
+    }
   };
 
   return (
