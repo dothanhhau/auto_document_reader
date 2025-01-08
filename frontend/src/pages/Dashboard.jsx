@@ -226,8 +226,8 @@ const Dashboard = () => {
           >
           
           <div className="flex flex-col cursor-pointer">
-            <span className="font-medium">{user.name}</span>
-            <span className="text-sm text-gray-500">{user.credits}</span>
+            <span className="font-medium">{userData?.data}</span>
+            <span className="text-sm text-gray-500"></span>
           </div>
 
           {/* Popup hiển thị thông tin người dùng */}
@@ -236,9 +236,9 @@ const Dashboard = () => {
               className="absolute left-0 bottom-full mb-2 w-64 p-4 bg-white border border-gray-300 shadow-lg rounded-md"
             >
               <div>
-                <h3 className="font-semibold text-lg">{user.name}</h3>
+                <h3 className="font-semibold text-lg"></h3>
                 <p className="text-sm text-gray-500">{userData.data}</p>
-                <p className="text-sm text-gray-500">{user.credits}</p>
+                <p className="text-sm text-gray-500"></p>
               </div>
               <div className="mt-4">
                 <button
