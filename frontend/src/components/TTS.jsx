@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 // import { textToSpeech } from "../services/api";
 
-const TTS = ( {params} ) => {
+const TTS = ({ params }) => {
   const [text, setText] = useState(params.text || "");
   const [speed, setSpeed] = useState(1);
   const [volume, setVolume] = useState(100);
@@ -13,9 +13,17 @@ const TTS = ( {params} ) => {
   const [id, setId] = useState(params._id || "audioPlayer");
   const [audioPlayer, setAudioPlayer] = useState(null); // Lưu trữ phần tử audio
   const [isLoading, setIsLoading] = useState(false);
-  
+  const [test, setTest] = useState(0);
+  const [textSummary, setTextSummary] = useState(0);
+  const [focusInput,setFocusInput] = useState('');
+
   const API_URL = process.env.REACT_APP_API_URL;
-  
+
+  const handleFocus = (name) => {
+    setFocusInput(name);
+    console.log(`Đang focus vào: ${name}`);
+  };
+
   const textInput = useRef(null);
   // Hàm lấy Base64 từ API và điều chỉnh tốc độ
   const getAndAdjustAudio = async () => {
@@ -33,31 +41,38 @@ const TTS = ( {params} ) => {
       return;
     }
     setIsLoading(true);
-
+    let need_text = ''
+    if(focusInput == 0) {
+      return;
+    }
+    else if(focusInput == 1) {
+      need_text = text;
+    }
+    else {
+      need_text = textSummary;
+    }
+    
     try {
-      const text_api = text; // Nội dung văn bản cần chuyển thành âm thanh
+      
+      const text_api = need_text; // Nội dung văn bản cần chuyển thành âm thanh
       const lang_api = language; // Ngôn ngữ
       const gender_api = voice; // Giới tính
-      const token_api = localStorage.getItem('user');
-      
+      const token_api = localStorage.getItem("user");
+
       const params = new URLSearchParams();
       params.append("text", text_api);
       params.append("lang", lang_api);
       params.append("gender", gender_api);
 
-
       // Gửi yêu cầu POST để lấy Base64 từ API
-      const response = await fetch(
-        `${API_URL}/googleapi/texttospeech`,
-        {
-          method: "POST",
-          headers: {
-            'Authorization': `Bearer ${token_api}`,
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: params.toString(),
-        }
-      );
+      const response = await fetch(`${API_URL}/googleapi/texttospeech`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token_api}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: params.toString(),
+      });
 
       if (response.status !== 200) {
         throw new Error("Failed to fetch audio from API");
@@ -134,6 +149,7 @@ const TTS = ( {params} ) => {
     setLanguage("vi-VN");
     setVoice("FEMALE");
     setText("");
+    setTest(false);
   };
 
   const handleAudioEnded = (audio) => {
@@ -141,48 +157,109 @@ const TTS = ( {params} ) => {
   };
 
   const saveAudioPositionAndPause = async (audio, audioId, pos) => {
-    if(audioId === 'audioPlayer') return;
+    if (audioId === "audioPlayer") return;
     if (audio) {
       const params = new URLSearchParams();
       params.append("position", pos);
 
-      const token_api = localStorage.getItem('user');
-      console.log(audio.currentTime)
+      const token_api = localStorage.getItem("user");
+      console.log(audio.currentTime);
       // Gửi yêu cầu POST để lấy Base64 từ API
-      const respnose = await fetch(
-        `${API_URL}/document/update/${audioId}`,
-        {
-          method: "PATCH",
-          headers: {
-            'Authorization': `Bearer ${token_api}`,
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: params.toString(), // Dữ liệu được mã hóa x-www-form-urlencoded
-        }
-      );
-      if(respnose?.status === 200) {
-        console.log('Success')
-      }
-      else {
-        console.log('Failure')
+      const respnose = await fetch(`${API_URL}/document/update/${audioId}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token_api}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: params.toString(), // Dữ liệu được mã hóa x-www-form-urlencoded
+      });
+      if (respnose?.status === 200) {
+        console.log("Success");
+      } else {
+        console.log("Failure");
       }
     }
   };
 
   const handleBeforeUnload = (event) => {
-    if(audioPlayer && audioPlayer?.src) {
+    if (audioPlayer && audioPlayer?.src) {
       audioPlayer.pause();
       // Tùy chọn: Cảnh báo người dùng nếu họ chưa lưu
-      event.returnValue = 'Are you sure you want to leave?';
+      event.returnValue = "Are you sure you want to leave?";
     }
   };
 
   const handlePause = (audio) => {
     if (audio.target) {
-      saveAudioPositionAndPause(audio.target, audio.target.id, audio.target.currentTime);
+      saveAudioPositionAndPause(
+        audio.target,
+        audio.target.id,
+        audio.target.currentTime
+      );
     }
   };
+  //tóm tắt
+  const handlerSummary = async (text) => {
+    if (text == "") {
+      toast.error("Vui lòng nhập văn bản!");
+      return;
+    }
+    if (text.length < 300) {
+      toast.error("Văn bản quá ngắn!");
+      return;
+    }
+    const params = new URLSearchParams();
+    params.append("text", text);
 
+    // Gửi yêu cầu POST để lấy Base64 từ API
+    const response = await fetch(`${API_URL}/googleapi/summary`, {
+      method: "POST",
+      headers: {
+        // Authorization: `Bearer ${token_api}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: params.toString(),
+    });
+
+    if (response.status !== 200) {
+      throw new Error("Failed to fetch audio from API");
+    }
+
+    const data = await response.json();
+
+    setTextSummary(data.data);
+    setTest(1);
+  };
+  //dịch
+  const handleTranslate= async (text) => {
+    if (text == "") {
+      toast.error("Vui lòng nhập văn bản!");
+      return;
+    }
+    const lang_api = language; // Ngôn ngữ
+    const params = new URLSearchParams();
+    params.append("text", text);
+    params.append("lang", lang_api);
+
+    // Gửi yêu cầu POST để lấy Base64 từ API
+    const response = await fetch(`${API_URL}/googleapi/translate`, {
+      method: "POST",
+      headers: {
+        // Authorization: `Bearer ${token_api}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: params.toString(),
+    });
+
+    if (response.status !== 200) {
+      throw new Error("Failed to fetch audio from API");
+    }
+
+    const data = await response.json();
+
+    setTextSummary(data.data);
+    setTest(2);
+  };
   useEffect(
     () => {
       if (audioBase64) {
@@ -192,14 +269,18 @@ const TTS = ( {params} ) => {
         audioPlayer.playbackRate = speed; // Cập nhật tốc độ
         audioPlayer.volume = volume / 100; // Cập nhật âm lượng
       }
-      window.addEventListener('beforeunload', handleBeforeUnload);
+      window.addEventListener("beforeunload", handleBeforeUnload);
       return () => {
-        window.removeEventListener('beforeunload', handleBeforeUnload);
-        if(id !== 'audioPlayer')
-          saveAudioPositionAndPause(audioPlayer, id, audioPlayer?.currentTime || 0); // Lưu và dừng audio khi component bị unmount
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+        if (id !== "audioPlayer")
+          saveAudioPositionAndPause(
+            audioPlayer,
+            id,
+            audioPlayer?.currentTime || 0
+          ); // Lưu và dừng audio khi component bị unmount
       };
     },
-    [audioBase64, audioPlayer],
+    [audioBase64, audioPlayer, test, textSummary],
     [speed, volume]
   ); // Mỗi khi audioBase64 thay đổi, sẽ gọi playAudio
 
@@ -216,6 +297,7 @@ const TTS = ( {params} ) => {
           value={text}
           ref={textInput}
           onChange={(e) => setText(e.target.value)}
+          onFocus={() => handleFocus(1)}
           className="w-full h-40 border rounded-lg p-4 text-gray-700 focus:outline-none focus:ring focus:ring-blue-200"
           placeholder="Nhập văn bản của bạn tại đây..."
           maxLength={5000}
@@ -224,6 +306,28 @@ const TTS = ( {params} ) => {
           {text.length} / 5000
         </div>
       </div>
+      {test ? (
+        <div className="flex-1 mb-4">
+          <span className="text-2xl font-bold text-gray-800">
+           {test === 1 ? 'Văn bản tóm tắt' : 'Văn bản dịch'} 
+          </span>
+          <textarea
+            value={textSummary}
+            ref={textInput}
+            onFocus={() => handleFocus(2)}
+            onChange={(e) => setText(e.target.value)}
+            className="w-full h-40 border rounded-lg p-4 text-gray-700 focus:outline-none focus:ring focus:ring-blue-200"
+            placeholder="Nhập văn bản của bạn tại đây..."
+            maxLength={5000}
+          />
+          <div className="text-right text-gray-500 mt-1">
+            {textSummary.length} / 5000
+          </div>
+        </div>
+      ) : (
+        ""
+      )}
+
       <audio
         className="w-full"
         ref={(ref) => setAudioPlayer(ref)}
@@ -235,11 +339,23 @@ const TTS = ( {params} ) => {
       {/* Thanh công cụ */}
       <div className="flex justify-end items-center space-x-2 mb-4">
         <button
-          onClick={() => setText("")}
+          onClick={handleReset}
           className="text-gray-600 px-3 py-2 border rounded-lg hover:bg-gray-100"
         >
           Xóa văn bản
         </button>
+        <button
+          onClick={() => handlerSummary(text)}
+          className="text-gray-600 px-3 py-2 border rounded-lg hover:bg-gray-100"
+        >
+          Tóm tắt
+        </button>{" "}
+        <button
+          onClick={() => handleTranslate(text)}
+          className="text-gray-600 px-3 py-2 border rounded-lg hover:bg-gray-100"
+        >
+          Dịch
+        </button>{" "}
         <button
           onClick={getAndAdjustAudio}
           className={`px-4 py-2 rounded-lg ${

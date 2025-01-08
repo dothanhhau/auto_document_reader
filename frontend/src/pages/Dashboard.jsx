@@ -225,8 +225,8 @@ const Dashboard = () => {
             // onMouseLeave={() => setPopupVisible(false)} // Ẩn popup khi không hover
           >
           
-          <div className="flex flex-col cursor-pointer">
-            <span className="font-medium">{userData?.data}</span>
+          <div className="flex flex-col truncate overflow-hidden cursor-pointer">
+            <span className="font-medium truncate">{userData?.data}</span>
             <span className="text-sm text-gray-500"></span>
           </div>
 
@@ -235,10 +235,10 @@ const Dashboard = () => {
             <div 
               className="absolute left-0 bottom-full mb-2 w-64 p-4 bg-white border border-gray-300 shadow-lg rounded-md"
             >
-              <div>
+              <div className=" truncate overflow-hidden">
                 <h3 className="font-semibold text-lg"></h3>
-                <p className="text-sm text-gray-500">{userData.data}</p>
-                <p className="text-sm text-gray-500"></p>
+                <p className="text-sm text-gray-500 truncate">{userData.data}</p>
+                <p className="text-sm text-gray-500 "></p>
               </div>
               <div className="mt-4">
                 <button
@@ -267,7 +267,7 @@ const Dashboard = () => {
             <h1 class="text-2xl font-bold text-gray-800 mb-4">
               Chuyển tệp thành giọng nói
             </h1>
-            <UploadDocument setActiveTab={setActiveTab} />
+            <UploadDocument setActiveTab={setActiveTab} setParams={setParams} />
           </div>
         )}
         {activeTab === "history" && (

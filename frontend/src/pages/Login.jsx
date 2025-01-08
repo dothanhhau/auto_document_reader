@@ -27,6 +27,7 @@ const Login = () => {
       toast.error(response.error);
     }
   };
+
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
@@ -60,6 +61,14 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
+          <div className="flex justify-end items-center">
+            <Link
+              to="/resetpass"
+              className="text-blue-500 hover:text-blue-700 text-sm font-medium"
+            >
+              Quên mật khẩu?
+            </Link>
+          </div>
           <button
             type="submit"
             className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-300"
@@ -69,9 +78,9 @@ const Login = () => {
         </form>
         <p className="text-center text-sm text-gray-500 mt-4">
           Chưa có tài khoản?{' '}
-          <a href="/register" className="text-blue-500 hover:text-blue-700 font-medium">
+          <Link to="/register" className="text-blue-500 hover:text-blue-700 font-medium">
             Đăng ký tại đây!
-          </a>
+          </Link>
         </p>
       </div>
     </div>

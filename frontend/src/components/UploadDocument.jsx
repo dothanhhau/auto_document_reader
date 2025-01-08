@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const UploadDocument = () => {
+const UploadDocument = ( {setActiveTab, setParams} ) => {
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [fileContent, setFileContent] = useState("");
@@ -22,6 +22,13 @@ const UploadDocument = () => {
     setFileContent(""); // xoá nội dung ở state
     setFile(null); // xoá file
   };
+
+  useEffect(() => {
+    if(text){
+      setParams({text: text});
+      setActiveTab('textToSpeech')
+    }
+  }, [text])  
 
   const handleUpload = async (e) => {
     e.preventDefault();
@@ -51,6 +58,7 @@ const UploadDocument = () => {
           getAndAdjustAudio(text);
         };
         reader.readAsText(file);
+
       } else if (fileType === "application/pdf") {
         const pdfjsLib = await import("pdfjs-dist/build/pdf");
         pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
@@ -65,6 +73,8 @@ const UploadDocument = () => {
         setFileContent(extractedText);
         setText(extractedText);
         getAndAdjustAudio(extractedText);
+        setParams({text: extractedText});
+        setActiveTab('textToSpeech')
         toast.success("Tải tệp lên thành công.");
       } else {
         toast.error("Loại tệp không được hỗ trợ.");

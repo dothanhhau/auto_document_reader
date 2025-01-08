@@ -31,7 +31,7 @@ def texttospeech():
     else:
       name = os.getenv('VOICE_NAME_FEMALE')
 
-    name = f'{data['lang']}-{name}'
+    name = f"{data['lang']}-{name}"
     
     payl = {
       "input": {"text": data['text']},
