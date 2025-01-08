@@ -95,9 +95,27 @@ def translate():
 
 @googleapi.route('/summary', methods=['POST'])
 def summary():
+  prompt = request.form.get('prompt')
+  if not prompt:
+    prompt = "Tóm tắt đoạn văn dưới đây cho tôi. Tuỳ thuộc vào ngôn ngữ của đoạn text bên dưới. Nếu tiếng việt thì trả về tiếng việt, tiếng anh thì trả về tiếng anh, ..."
   data = {
     "text": request.form.get('text'),
-    "prompt": "Tóm tắt đoạn văn dưới đây cho tôi. Tuỳ thuộc vào ngôn ngữ của đoạn text bên dưới. Nếu tiếng việt thì trả về tiếng việt, tiếng anh thì trả về tiếng anh, ..."
+    "prompt": prompt
+  }
+  try:
+    response = model.generate_content(str(data['prompt'] + '\n' + data['text']))
+    return jsonify(status=200, data=response.text)
+  except Exception as e:
+    return jsonify(status=500, data=e)
+  
+@googleapi.route('/call_gemini', methods=['POST'])
+def call_gemini():
+  prompt = request.form.get('prompt')
+  if not prompt:
+    prompt = ''
+  data = {
+    "text": request.form.get('text'),
+    "prompt": prompt
   }
   try:
     response = model.generate_content(str(data['prompt'] + '\n' + data['text']))
