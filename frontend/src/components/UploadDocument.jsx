@@ -22,6 +22,13 @@ const UploadDocument = ( {setActiveTab, setParams} ) => {
     setFileContent(""); // xoá nội dung ở state
     setFile(null); // xoá file
   };
+  useEffect(() => {
+    if(text != '') {
+      setParams({text})
+      setActiveTab('textToSpeech')
+    }
+
+  }, [text])
 
   useEffect(() => {
     if(text){
@@ -44,6 +51,7 @@ const UploadDocument = ( {setActiveTab, setParams} ) => {
     // Hiển thị kích thước tệp
     // const fileSizeInMB = (file.size / 1024).toFixed(2); // Tính kích thước tệp ở KB
     const fileType = file.type;
+
 
     try {
       setIsUploading(true);
