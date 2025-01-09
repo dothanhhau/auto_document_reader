@@ -27,6 +27,10 @@ const History = ( {setActiveTab, setParams} ) => {
   };
   useEffect(() => {
     fetchData();
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, []);
 
   const handleDelete = async (id) => {
@@ -75,13 +79,16 @@ const History = ( {setActiveTab, setParams} ) => {
     }
   };
 
-  // const handleBeforeUnload = (event) => {
-  //   if(audioPlayer && audioPlayer?.src) {
-  //     audioPlayer.pause();
-  //     // Tùy chọn: Cảnh báo người dùng nếu họ chưa lưu
-  //     event.returnValue = 'Are you sure you want to leave?';
-  //   }
-  // };
+  const handleBeforeUnload = (event) => {
+    Object.keys(audioRef).forEach( async (audioId) => {
+      const audioElement = audioRef[audioId]?.current;
+      if (audioElement && !audioElement.pause) {
+        console.log(audioElement)
+        saveAudioPositionAndPause(audioElement, audioElement.id, audioElement.currentTime)
+      }
+    });
+    event.returnValue = 'Are you sure you want to leave?';
+  };
 
   const handlePause = (audio) => {
     if (audio) {
@@ -129,8 +136,8 @@ const History = ( {setActiveTab, setParams} ) => {
       {/* Notice */}
       {/* <p className="text-sm text-gray-500 mb-4">
                 <span className="font-medium">Lưu ý:</span> Tệp âm thanh chỉ được lưu giữ trong 72 giờ.
-            </p> */}
       <p className="text-sm text-gray-500 mb-4">0 của 0 hàng đã chọn.</p>
+            </p> */}
 
       {/* Table Headers */}
       <div className="max-w-6xl border rounded-md overflow-auto">
