@@ -17,11 +17,6 @@ const UploadDocument = ( {setActiveTab, setParams} ) => {
   const [isLoading, setIsLoading] = useState(false);
   const API_URL = process.env.REACT_APP_API_URL;
 
-  const handleNewFile = () => {
-    setShowContent("upload");
-    setFileContent(""); // xoá nội dung ở state
-    setFile(null); // xoá file
-  };
   useEffect(() => {
     if(text != '') {
       setParams({text})
@@ -29,6 +24,12 @@ const UploadDocument = ( {setActiveTab, setParams} ) => {
     }
 
   }, [text])
+  
+  const handleNewFile = () => {
+    setShowContent("upload");
+    setFileContent(""); // xoá nội dung ở state
+    setFile(null); // xoá file
+  };
 
   const handleUpload = async (e) => {
     e.preventDefault();
