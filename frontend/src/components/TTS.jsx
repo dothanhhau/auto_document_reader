@@ -15,7 +15,7 @@ const TTS = ({ params }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [test, setTest] = useState(0);
   const [textSummary, setTextSummary] = useState(0);
-  const [focusInput,setFocusInput] = useState('');
+  const [focusInput,setFocusInput] = useState(0);
 
   const API_URL = process.env.REACT_APP_API_URL;
 
@@ -43,6 +43,7 @@ const TTS = ({ params }) => {
     setIsLoading(true);
     let need_text = ''
     if(focusInput == 0) {
+      toast.error("Focus vào ô input cần chuyển văn bản thành giọng nói!")
       return;
     }
     else if(focusInput == 1) {
