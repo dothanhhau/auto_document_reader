@@ -42,11 +42,12 @@ const TTS = ({ params }) => {
     }
     setIsLoading(true);
     let need_text = ''
-    if(focusInput == 0) {
+    if(focusInput === 0) {
       toast.error("Focus vào ô input cần chuyển văn bản thành giọng nói!")
+      setIsLoading(false); // Kết thúc loading
       return;
     }
-    else if(focusInput == 1) {
+    else if(focusInput === 1) {
       need_text = text;
     }
     else {
