@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const UploadDocument = () => {
+const UploadDocument = ( {setActiveTab, setParams} ) => {
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [fileContent, setFileContent] = useState("");
@@ -22,6 +22,13 @@ const UploadDocument = () => {
     setFileContent(""); // xoá nội dung ở state
     setFile(null); // xoá file
   };
+  useEffect(() => {
+    if(text != '') {
+      setParams({text})
+      setActiveTab('textToSpeech')
+    }
+
+  }, [text])
 
   const handleUpload = async (e) => {
     e.preventDefault();
@@ -37,6 +44,7 @@ const UploadDocument = () => {
     // Hiển thị kích thước tệp
     // const fileSizeInMB = (file.size / 1024).toFixed(2); // Tính kích thước tệp ở KB
     const fileType = file.type;
+
 
     try {
       setIsUploading(true);

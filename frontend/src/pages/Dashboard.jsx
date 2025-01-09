@@ -267,7 +267,7 @@ const Dashboard = () => {
             <h1 class="text-2xl font-bold text-gray-800 mb-4">
               Chuyển tệp thành giọng nói
             </h1>
-            <UploadDocument setActiveTab={setActiveTab} />
+            <UploadDocument setActiveTab={setActiveTab} setParams={setParams} />
           </div>
         )}
         {activeTab === "history" && (
